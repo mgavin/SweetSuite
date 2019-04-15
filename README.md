@@ -9,7 +9,7 @@ If done correctly, `InstantTraining.dll` shoud be located in `rocketleague\Binar
 
 Next, we will edit our default plugins. Open up `rocketleague\Binaries\Win32\bakkesmod\cfg\plugins.cfg` with notepad or a similar text editing application. Append `plugin load InstantTraining` to the bottom of the file. It should look something like this: 
 
-![pluginconfig](images\pluginscfg.png)
+![pluginconfig](images/pluginscfg.png)
 
 Save the file.
 
@@ -17,7 +17,7 @@ Save the file.
 
 Now the plugin will be loaded everytime you load Bakkesmod. You can easily access and change the plugin's settings by hitting F2 to open the Bakkesmod menu, and go to the `Plugins` tab. There you will be able to edit the settings for the InstantTraining mod.
 
-![pluginsettings](images\pluginsettings.png)
+![pluginsettings](images/pluginsettings.png)
 
 # Planned features
 
