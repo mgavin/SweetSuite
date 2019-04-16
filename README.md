@@ -1,38 +1,32 @@
 # Instant Training
-This is an Instant training mod for Rocket League, more specifically, Bakkesmod. It immediately puts the player in training, as soon as a match is over. Allows for map selection from the Bakkesmod F2 Plugins menu. 
+This is the InstantTraining plugin for Rocket League, more specifically, BakkesMod. It immediately puts the player in training, as soon as a match is over.
 
-# Installation
+## Installation
 
-Download the latest release and extract it to `rocketleague\Binaries\Win32\bakkesmod\plugins`
+Compiled files are located in the `Release` directory.
 
-If done correctly, `InstantTraining.dll` shoud be located in `rocketleague\Binaries\Win32\bakkesmod\plugins` and `instanttraining.set` should be located in `rocketleague\Binaries\Win32\bakkesmod\plugins\settings\`
+Move `InstantTraining.dll` to `<steam_directory>\steamapps\common\rocketleague\Binaries\Win32\bakkesmod\plugins\` and `instanttraining.set` should be located in `<steam_directory>\steamapps\common\rocketleague\Binaries\Win32\bakkesmod\plugins\settings\`.
 
-Next, we will edit our default plugins. Open up `rocketleague\Binaries\Win32\bakkesmod\cfg\plugins.cfg` with notepad or a similar text editing application. Append `plugin load InstantTraining` to the bottom of the file. It should look something like this: 
+Open up `<steam_directory>\steamapps\common\rocketleague\Binaries\Win32\bakkesmod\cfg\plugins.cfg` with notepad or a similar text editing application. Append `plugin load InstantTraining` to the bottom of the file and save it. It should look something like this when you are done:
 
-![pluginconfig](images/pluginscfg.png)
+![pluginconfig](Images/pluginscfg.png)
 
-Save the file.
+## Usage
 
-# Usage
+Now the plugin will be loaded everytime you load Bakkesmod. You can easily edit the settings by going to the `Plugins` tab in BakkesMod. There you can edit the settings for the InstantTraining plugin.
 
-Now the plugin will be loaded everytime you load Bakkesmod. You can easily access and change the plugin's settings by hitting F2 to open the Bakkesmod menu, and go to the `Plugins` tab. There you will be able to edit the settings for the InstantTraining mod.
+![pluginsettings](Images/pluginsettings.png)
 
-![pluginsettings](images/pluginsettings.png)
+## Features
 
-# Planned features
+- **Delay** - If you do not want to join freeplay instantly, you can set a custom delay (in seconds) to wait before joining
+- **AutoGG Support** - If you use the built-in `Automatically say GG` feature, no need to worry, you will get your `GG` in before joining freeplay
 
-## Auto GG
+## Planned
 
-Useful if you don't want to come off as a sourpuss for leaving instantly. Says GG in chat right before leaving.
+- Automatic queue after exiting to training
+- Only join training after a specific type of game (Casual, Ranked, Extras)
 
-## Game Modes
+## Thanks
 
-Don't want to freeplay Soccar? No problem, you'll be able to choose what type of game you want to play from a dropdown menu!
-
-## Delay
-
-Joining training way too fast? No problem, you will be able to set a custom delay to wait before joining training!
-
-## Pause if
-
-This will be an option to pause the plugin if you are in a certain type of game, i.e Rumble, Dropshot, Casual, Ranked, Private Match, etc.
+Special thanks to [Aleksbgbg](https://github.com/Aleksbgbg) for beating me to this and getting a base to work off of, and thanks to all the helpful guys in the BakkesMod discord!
