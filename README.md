@@ -24,8 +24,8 @@ Now the plugin will be loaded everytime you load Bakkesmod. You can easily edit 
 
 ## Planned
 
-- Automatic queue after exiting to training
-- Only join training after a specific type of game (Casual, Ranked, Extras)
+- ~~Automatic queue after exiting to training~~ (Bakkesmod needs additional functionality added to achieve this)
+- Only join training after a specific type of game (Casual, Ranked, Extras) (WIP)
 
 ## Thanks
 
