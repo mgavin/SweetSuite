@@ -18,7 +18,7 @@ void InstantTraining::onUnload()
 void InstantTraining::launchTraining() const
 {
 	std::stringstream launchTrainingCommandBuilder;
-	launchTrainingCommandBuilder << "start " << cvarManager->getCvar(trainingMapCvarName).getStringValue() << "?Game=TAGame.GameInfo_Tutorial_TA?FreePlay";
+	launchTrainingCommandBuilder << "start " << cvarManager->getCvar(trainingMapCvarName).getStringValue() << "?Game=TAGame.GameInfo_Tutorial_TA?GameTags=Freeplay";
 
 	const std::string launchTrainingCommand = launchTrainingCommandBuilder.str();
 	gameWrapper->ExecuteUnrealCommand(launchTrainingCommand);
@@ -47,7 +47,7 @@ void InstantTraining::pluginEnabledChanged()
 void InstantTraining::autoGGCheck()
 {
 	float totalDelayTime = 0;
-	float trainingDelayTime = cvarManager->getCvar(delayCvarName).getFloatValue() / 1000;
+	float trainingDelayTime = cvarManager->getCvar(delayCvarName).getFloatValue();
 	float autoGGDelayTime = cvarManager->getCvar("ranked_autogg_delay").getFloatValue() / 1000;
 
 	bool autoGG = cvarManager->getCvar("ranked_autogg").getBoolValue();
