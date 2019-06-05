@@ -1,4 +1,5 @@
 # Instant Training
+
 This is the InstantTraining plugin for Rocket League, more specifically, BakkesMod. It immediately puts the player in training, as soon as a match is over.
 
 ## Installation
@@ -21,6 +22,7 @@ Now the plugin will be loaded everytime you load Bakkesmod. You can easily edit 
 
 - **Delay** - If you do not want to join freeplay instantly, you can set a custom delay (in seconds) to wait before joining
 - **AutoGG Support** - If you use the built-in `Automatically say GG` feature, no need to worry, you will get your `GG` in before joining freeplay
+- **Random Maps** - You can select "Random Map" to get a random map when you load into freeplay from the plugin.
 
 ## Planned
 
