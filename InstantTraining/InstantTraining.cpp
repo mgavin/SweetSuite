@@ -18,7 +18,12 @@ void InstantTraining::onUnload()
 void InstantTraining::launchTraining() const
 {
 	std::stringstream launchTrainingCommandBuilder;
-	launchTrainingCommandBuilder << "start " << cvarManager->getCvar(trainingMapCvarName).getStringValue() << "?Game=TAGame.GameInfo_Tutorial_TA?GameTags=Freeplay";
+	std::string mapname = cvarManager->getCvar(trainingMapCvarName).getStringValue();
+	if (mapname.compare("random") == 0)
+	{
+		mapname = gameWrapper->GetRandomMap();
+	}
+	launchTrainingCommandBuilder << "start " << mapname << "?Game=TAGame.GameInfo_Tutorial_TA?GameTags=Freeplay";
 
 	const std::string launchTrainingCommand = launchTrainingCommandBuilder.str();
 	gameWrapper->ExecuteUnrealCommand(launchTrainingCommand);
