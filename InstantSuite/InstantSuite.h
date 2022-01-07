@@ -1,6 +1,11 @@
 #pragma once
 #pragma comment(lib, "bakkesmod.lib")
 #include "bakkesmod/plugin/bakkesmodplugin.h"
+#include "version.h"
+
+using namespace std;
+
+constexpr auto plugin_version = stringify(VERSION_MAJOR) "." stringify(VERSION_MINOR) "." stringify(VERSION_PATCH) "." stringify(VERSION_BUILD);
 
 class InstantSuite final : public BakkesMod::Plugin::BakkesModPlugin
 {

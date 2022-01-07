@@ -1,7 +1,7 @@
 #include "InstantSuite.h"
 #include <sstream>
 
-BAKKESMOD_PLUGIN(InstantSuite, "InstantSuite", "1.0.2", PLUGINTYPE_FREEPLAY)
+BAKKESMOD_PLUGIN(InstantSuite, "InstantSuite", plugin_version, PLUGINTYPE_FREEPLAY)
 
 enum Mode
 {
@@ -21,7 +21,6 @@ enum Mode
 	RankedDropshot = 29,
 	RankedSnowday = 30
 };
-
 
 void InstantSuite::onLoad()
 {
