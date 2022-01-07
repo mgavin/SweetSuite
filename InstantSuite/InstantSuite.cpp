@@ -19,8 +19,11 @@ enum Mode
 	RankedHoops = 27,
 	RankedRumble = 28,
 	RankedDropshot = 29,
-	RankedSnowday = 30
+	RankedSnowday = 30,
+	GodBall = 38,
+	GodBallDoubles = 43
 };
+
 
 void InstantSuite::onLoad()
 {
@@ -38,6 +41,8 @@ void InstantSuite::onLoad()
 	cvarManager->registerCvar(disableCasualQCvarName, "0", "Don't automatically queue when ending a casual game.");
 	cvarManager->registerCvar(disableCasualTCvarName, "0", "Don't automatically go to training when ending a casual game.");
 	cvarManager->registerCvar(disableCasualECvarName, "0", "Don't automatically exit when ending a casual game.");
+
+	cvarManager->registerCvar(disablePrivateCvarName, "1", "Disable plugin during Private, Tournament, and Heatseeker matches.");
 
 	gameWrapper->SetTimeout([this](GameWrapper* gw) {
 		this->removeOldPlugin();
@@ -76,7 +81,7 @@ void InstantSuite::removeOldPlugin() { // disable deprecated predecessor plugin 
 	cvarManager->executeCommand("writeplugins");
 }
 
-void InstantSuite::launchTraining(ServerWrapper server, void* params, string eventName)
+void InstantSuite::launchTraining(ServerWrapper server, void* params, std::string eventName)
 {
 	float totalTrainingDelayTime = 0;
 	float trainingDelayTime = cvarManager->getCvar(tDelayCvarName).getFloatValue();
@@ -91,22 +96,27 @@ void InstantSuite::launchTraining(ServerWrapper server, void* params, string eve
 	}
 
 	bool disableCasualTraining = cvarManager->getCvar(disableCasualTCvarName).getBoolValue();
+	bool disablePrivate = cvarManager->getCvar(disablePrivateCvarName).getBoolValue();
 
-	if (!server.IsNull() && disableCasualTraining)
+	if (!server.IsNull() && (server.GetPlaylist().memory_address != NULL) && (disablePrivate || disableCasualTraining))
 	{
 		auto playlist = (Mode)server.GetPlaylist().GetPlaylistId();
 
-		if (playlist == CasualChaos || playlist == CasualDoubles || playlist == CasualDuel || playlist == CasualStandard) {
+		if ((playlist == CasualChaos || playlist == CasualDoubles || playlist == CasualDuel || playlist == CasualStandard) && disableCasualTraining) {
+			return;
+		}
+		else if ((playlist == Private || playlist == Tournament || playlist == GodBall || playlist == GodBallDoubles) && disablePrivate) {
 			return;
 		}
 		else {
 			gameWrapper->SetTimeout(std::bind(&InstantSuite::delayedTraining, this), totalTrainingDelayTime);
 		}
 	}
+
 	gameWrapper->SetTimeout(std::bind(&InstantSuite::delayedTraining, this), totalTrainingDelayTime);
 }
 
-void InstantSuite::exitGame(ServerWrapper server, void* params, string eventName)
+void InstantSuite::exitGame(ServerWrapper server, void* params, std::string eventName)
 {
 	float totalExitDelayTime = 0;
 	float exitDelayTime = cvarManager->getCvar(eDelayCvarName).getFloatValue();
@@ -121,23 +131,27 @@ void InstantSuite::exitGame(ServerWrapper server, void* params, string eventName
 	}
 
 	bool disableCasualExit = cvarManager->getCvar(disableCasualECvarName).getBoolValue();
-
-
-	if (!server.IsNull() && disableCasualExit)
+	bool disablePrivate = cvarManager->getCvar(disablePrivateCvarName).getBoolValue();
+	
+	if (!server.IsNull() && (disablePrivate || disableCasualExit))
 	{
 		auto playlist = (Mode)server.GetPlaylist().GetPlaylistId();
 
-		if (playlist == CasualChaos || playlist == CasualDoubles || playlist == CasualDuel || playlist == CasualStandard) {
-			//return;
+		if ((playlist == CasualChaos || playlist == CasualDoubles || playlist == CasualDuel || playlist == CasualStandard) && disableCasualExit) {
+			return;
+		}
+		else if ((playlist == Private || playlist == Tournament) && disablePrivate) {
+			return;
 		}
 		else {
 			gameWrapper->SetTimeout(std::bind(&InstantSuite::delayedExit, this), totalExitDelayTime);
 		}
 	}
+
 	gameWrapper->SetTimeout(std::bind(&InstantSuite::delayedExit, this), totalExitDelayTime);
 }
 
-void InstantSuite::queue(ServerWrapper server, void* params, string eventName)
+void InstantSuite::queue(ServerWrapper server, void* params, std::string eventName)
 {
 	float totalQueueDelayTime = 0;
 	float queueDelayTime = cvarManager->getCvar(qDelayCvarName).getFloatValue();
@@ -152,25 +166,28 @@ void InstantSuite::queue(ServerWrapper server, void* params, string eventName)
 	}
 
 	bool disableCasualQueue = cvarManager->getCvar(disableCasualQCvarName).getBoolValue();
+	bool disablePrivate = cvarManager->getCvar(disablePrivateCvarName).getBoolValue();
 
-	if (!server.IsNull() && disableCasualQueue)
+	if (!server.IsNull() && (disablePrivate || disableCasualQueue))
 	{
 		auto playlist = (Mode)server.GetPlaylist().GetPlaylistId();
 
-		if (playlist == CasualChaos || playlist == CasualDoubles || playlist == CasualDuel || playlist == CasualStandard) {
+		if ((playlist == CasualChaos || playlist == CasualDoubles || playlist == CasualDuel || playlist == CasualStandard) && disableCasualQueue) {
+			return;
+		}
+		else if ((playlist == Private || playlist == Tournament) && disablePrivate) {
 			return;
 		}
 		else {
 			gameWrapper->SetTimeout(std::bind(&InstantSuite::delayedQueue, this), totalQueueDelayTime);
 		}
 	}
+
 	gameWrapper->SetTimeout(std::bind(&InstantSuite::delayedQueue, this), totalQueueDelayTime);
 }
 
 void InstantSuite::delayedQueue()
 {
-	// HalfwayDead's code snippet
-
 	auto game = gameWrapper->GetOnlineGame();
 
 	if (!game.IsNull())
@@ -188,16 +205,14 @@ void InstantSuite::delayedTraining()
 {
 	std::stringstream launchTrainingCommandBuilder;
 	std::string mapname = cvarManager->getCvar(trainingMapCvarName).getStringValue();
+
 	if (mapname.compare("random") == 0)
 	{
 		mapname = gameWrapper->GetRandomMap();
 	}
+
 	launchTrainingCommandBuilder << "start " << mapname << "?Game=TAGame.GameInfo_Tutorial_TA?GameTags=Freeplay";
-
 	const std::string launchTrainingCommand = launchTrainingCommandBuilder.str();
-
-	// HalfwayDead's code snippet
-
 	auto game = gameWrapper->GetOnlineGame();
 
 	if (!game.IsNull())
@@ -213,8 +228,6 @@ void InstantSuite::delayedTraining()
 
 void InstantSuite::delayedExit()
 {
-	// HalfwayDead's code snippet
-
 	auto game = gameWrapper->GetOnlineGame();
 
 	if (!game.IsNull())
@@ -228,7 +241,7 @@ void InstantSuite::delayedExit()
 	cvarManager->executeCommand("unreal_command disconnect");
 }
 
-void InstantSuite::onMatchEnd(ServerWrapper server, void* params, string eventName)
+void InstantSuite::onMatchEnd(ServerWrapper server, void* params, std::string eventName)
 {
 	const bool exitEnabled = cvarManager->getCvar(exitCvarName).getBoolValue();
 	const bool queueEnabled = cvarManager->getCvar(queueCvarName).getBoolValue();
@@ -249,7 +262,7 @@ void InstantSuite::onMatchEnd(ServerWrapper server, void* params, string eventNa
 
 void InstantSuite::hookMatchEnded()
 {
-	gameWrapper->HookEventWithCaller<ServerWrapper>(matchEndedEvent, std::bind(&InstantSuite::onMatchEnd, this, placeholders::_1, placeholders::_2,	placeholders::_3));
+	gameWrapper->HookEventWithCaller<ServerWrapper>(matchEndedEvent, std::bind(&InstantSuite::onMatchEnd, this, std::placeholders::_1, std::placeholders::_2, std::placeholders::_3));
 	hooked = true;
 	logHookType("Hooked");
 }
