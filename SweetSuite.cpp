@@ -119,7 +119,7 @@ void SweetSuite::init_hooked_events() {
                   std::placeholders::_3));
 
       HookedEvents::AddHookedEvent(
-            "Function ProjectX.OnlineGameJoinGame_X.SetActiveServerData",
+            "Function TAGame.GFxHUD_TA.HandleAllTeamsCreated",
             [this](auto... fargs) {
                   // Guaranteed joined a server
                   log::log_info("CALLING {} ...", fargs...);
@@ -130,7 +130,7 @@ void SweetSuite::init_hooked_events() {
                   }
 
                   last_playlist = static_cast<PlaylistId>(sw.GetPlaylist().GetPlaylistId());
-                  log::log_debug("last_playlist: {}", bm_helper::playlist_ids_str[last_playlist]);
+                  log::log_debug("last_playlist: {}", bm_helper::playlist_ids_str_spaced[last_playlist]);
             },
             true);
 

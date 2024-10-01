@@ -53,12 +53,12 @@ private:
       // constants
       // Launch.log file data
       static inline const std::filesystem::path launch_log_path = []() {
-            char home_drive[128] = {0};
-            char home_path[128]  = {0};
-            GetEnvironmentVariableA("HOMEDRIVE", home_drive, 128);
-            GetEnvironmentVariableA("HOMEPATH", home_path, 128);
-            return std::string(home_drive) + std::string(home_path)
-                   + "/Documents/My Games/Rocket League/TAGame/Logs/Launch.log";
+            wchar_t home_drive[128] = {0};
+            wchar_t home_path[128]  = {0};
+            GetEnvironmentVariable(L"HOMEDRIVE", home_drive, 128);
+            GetEnvironmentVariable(L"HOMEPATH", home_path, 128);
+            return std::wstring(home_drive) + std::wstring(home_path)
+                   + L"/Documents/My Games/Rocket League/TAGame/Logs/Launch.log";
       }();
 
       const ImColor col_white = ImColor {
