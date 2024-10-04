@@ -109,14 +109,14 @@ void SweetSuite::init_hooked_events() {
             return;
       }
 
-      HookedEvents::AddHookedEventWithCaller<ServerWrapper>(
-            matchEndedEvent,
-            std::bind(
-                  &SweetSuite::onMatchEnd,
-                  this,
-                  std::placeholders::_1,
-                  std::placeholders::_2,
-                  std::placeholders::_3));
+      // HookedEvents::AddHookedEventWithCaller<ServerWrapper>(
+      //       matchEndedEvent,
+      //       std::bind(
+      //             &SweetSuite::onMatchEnd,
+      //             this,
+      //             std::placeholders::_1,
+      //             std::placeholders::_2,
+      //             std::placeholders::_3));
 
       HookedEvents::AddHookedEvent(
             "Function TAGame.GFxHUD_TA.HandleAllTeamsCreated",
@@ -130,7 +130,172 @@ void SweetSuite::init_hooked_events() {
                   }
 
                   last_playlist = static_cast<PlaylistId>(sw.GetPlaylist().GetPlaylistId());
-                  log::log_debug("last_playlist: {}", bm_helper::playlist_ids_str_spaced[last_playlist]);
+                  log::log_debug("last_playlist: {}", bm_helper::playlist_ids_str_spaced.at(last_playlist));
+            },
+            true);
+
+      HookedEvents::AddHookedEvent(
+            "Function TAGame.GFxData_Training_TA.HandleCurrentPlaylistIndexUpdated",
+            [this](auto... fargs) {
+                  // Guaranteed joined a server
+                  log::log_info("CALLING {} ...", fargs...);
+                  if (!gameWrapper->IsInCustomTraining()) {
+                        return;
+                  }
+                  ServerWrapper          sw = gameWrapper->GetGameEventAsServer();
+                  TrainingEditorWrapper  tew {sw.memory_address};  // WOW IT WAS SO OBVIOUS!
+                  GfxDataTrainingWrapper gdtw = gameWrapper->GetGfxTrainingData();
+                  log::log_info("SHOTS NUMBER: {}", gdtw.GetCurrentPlaylistindex());
+            },
+            true);
+
+      HookedEvents::AddHookedEventWithCaller<PlayerControllerWrapper>(
+            "Function Engine.PlayerController.ConsoleCommand",
+            [this](PlayerControllerWrapper unused, void * params, std::string eventName) {
+                  log::log_info("CALLING!!! {}....", eventName);
+                  struct cc_params {
+                        bm_helper::details::FString command;
+                        bool                        write_to_log;
+                  } * p = reinterpret_cast<cc_params *>(params);
+
+                  // debugging this console command
+                  log::log_debug("PARAM'S LOCATION: {:X}", reinterpret_cast<uintptr_t>(params));
+
+                  if (p == nullptr) {
+                        log::log_error("p WAS NULLPTR!!!!");
+                        return;
+                  }
+
+                  unsigned char * bytes = reinterpret_cast<unsigned char *>(p);
+
+                  int         i   = 1;
+                  int         end = 20 + i;
+                  std::string outstr;
+                  for (; i <= end; ++i) {
+                        outstr += std::format("{:02X} ", bytes[i - 1]);
+                        if (i % 8 == 0) {
+                              log::log_debug("{}", outstr);
+                              outstr.clear();
+                        }
+                  }
+                  log::log_debug("{}", outstr);
+
+                  bool is_safe = (p->command.length() < 512 && p->command.length() > 0);
+                  log::log_debug(
+                        L"cmd: {{{}, size: {}}}, write_to_log: {}",
+                        is_safe ? p->command.ToWideString() : L"NOTSAFE",
+                        p->command.length(),
+                        static_cast<bool>(p->write_to_log));
+                  log::log_debug(
+                        "ARRAYDATA ADDR: {:X}, length: {}, write_to_log: {}",
+                        reinterpret_cast<uintptr_t>(p->command.c_str()),
+                        p->command.length(),
+                        static_cast<bool>(p->write_to_log));
+
+                  if (is_safe) {
+                        last_map_command = p->command.ToString();
+                        log::log_debug("last_map_command: {}", last_map_command);
+                  }
+            },
+            false);
+
+      HookedEvents::AddHookedEventWithCaller<PlayerControllerWrapper>(
+            "Function Engine.PlayerController.ConsoleCommand",
+            [this](PlayerControllerWrapper unused, void * params, std::string eventName) {
+                  log::log_info("CALLING!!! {}.... POST", eventName);
+                  struct cc_params {
+                        uint8_t                     testpadding[0x08];
+                        bm_helper::details::FString command;
+                        bool                        write_to_log;
+                  } * p = reinterpret_cast<cc_params *>(params);
+
+                  // debugging this console command
+                  log::log_debug("PARAM'S LOCATION: {:X}", reinterpret_cast<uintptr_t>(params));
+
+                  if (p == nullptr) {
+                        log::log_error("p WAS NULLPTR!!!!");
+                        return;
+                  }
+
+                  unsigned char * bytes = reinterpret_cast<unsigned char *>(p);
+
+                  int         i   = 9;
+                  int         end = 20 + i;
+                  std::string outstr;
+                  for (; i <= end; ++i) {
+                        outstr += std::format("{:02X} ", bytes[i - 1]);
+                        if (i % 8 == 0) {
+                              log::log_debug("{}", outstr);
+                              outstr.clear();
+                        }
+                  }
+                  log::log_debug("{}", outstr);
+
+                  // only one missing the start before the command
+                  bool is_safe = (p->command.length() < 512 && p->command.length() > 0);
+                  log::log_debug(
+                        L"cmd: {{{}, size: {}}}, write_to_log: {}",
+                        is_safe ? p->command.ToWideString() : L"NOTSAFE",
+                        p->command.length(),
+                        static_cast<bool>(p->write_to_log));
+                  log::log_debug(
+                        "ARRAYDATA ADDR: {:X}, length: {}, write_to_log: {}",
+                        reinterpret_cast<uintptr_t>(p->command.c_str()),
+                        p->command.length(),
+                        static_cast<bool>(p->write_to_log));
+
+                  if (is_safe) {
+                        last_map_command = "start " + p->command.ToString();
+                        log::log_debug("last_map_command: {}", last_map_command);
+                  }
+            },
+            true);
+
+      HookedEvents::AddHookedEventWithCaller<PlayerControllerWrapper>(
+            "Function Engine.Actor.ConsoleCommand",
+            [this](PlayerControllerWrapper unused, void * params, std::string eventName) {
+                  log::log_info("CALLING!!! {}... POST", eventName);
+                  struct cc_params {
+                        uint8_t                     testpadding[0x18];
+                        bm_helper::details::FString command;
+                        bool                        write_to_log;
+                  } * p = reinterpret_cast<cc_params *>(params);
+
+                  if (p == nullptr) {
+                        log::log_error("p WAS NULLPTR!!!!");
+                        return;
+                  }
+
+                  unsigned char * bytes = reinterpret_cast<unsigned char *>(p);
+
+                  int         i   = 25;
+                  int         end = 20 + i;
+                  std::string outstr;
+                  for (; i <= end; ++i) {
+                        outstr += std::format("{:02X} ", bytes[i - 1]);
+                        if (i % 8 == 0) {
+                              log::log_debug("{}", outstr);
+                              outstr.clear();
+                        }
+                  }
+                  log::log_debug("{}", outstr);
+
+                  bool is_safe = (p->command.length() < 512 && p->command.length() > 0);
+                  log::log_debug(
+                        L"cmd: {{{}, size: {}}}, write_to_log: {}",
+                        is_safe ? p->command.ToWideString() : L"NOTSAFE",
+                        p->command.length(),
+                        static_cast<bool>(p->write_to_log));
+                  log::log_debug(
+                        "ARRAYDATA ADDR: {:X}, length: {}, write_to_log: {}",
+                        reinterpret_cast<uintptr_t>(p->command.c_str()),
+                        p->command.length(),
+                        static_cast<bool>(p->write_to_log));
+
+                  if (is_safe) {
+                        last_map_command = p->command.ToString();
+                        log::log_debug("last_map_command: {}", last_map_command);
+                  }
             },
             true);
 
@@ -394,7 +559,17 @@ void SweetSuite::RenderSettings() {
       }
 
       ImGui::SameLine(0.0f, 75.0f);
-      if (ImGui::Checkbox("Enable last freeplay/custom map/workshop?", &instant_training_enabled)) {
+      if (ImGui::Checkbox("Enable instant custom training?", &instant_training_enabled)) {
+            CVarManager::instance().get_cvar_training_enabled().setValue(instant_training_enabled);
+      }
+
+      ImGui::SameLine(0.0f, 75.0f);
+      if (ImGui::Checkbox("Enable instant workshop?", &instant_training_enabled)) {
+            CVarManager::instance().get_cvar_training_enabled().setValue(instant_training_enabled);
+      }
+
+      ImGui::SameLine(0.0f, 75.0f);
+      if (ImGui::Checkbox("Enable goto last map?", &instant_training_enabled)) {
             CVarManager::instance().get_cvar_suite_enabled().setValue(plugin_enabled);
       }
 
@@ -425,14 +600,14 @@ void SweetSuite::RenderSettings() {
             }
             for (int line = 0; line < mxlines; ++line) {
                   for (const std::string & category : SHOWN_PLAYLIST_CATEGORIES) {
-                        if (line < bm_helper::playlist_categories[category].size()) {
+                        if (line < bm_helper::playlist_categories.at(category).size()) {
                               PlaylistId playid = bm_helper::playlist_categories.at(category)[line];
                               if (!no_exit_playlists.contains(playid)) {
                                     if (ImGui::Selectable(
                                               std::format(
                                                     "[{:c}] {}",
                                                     plist_enabled.at(playid) ? 'X' : ' ',
-                                                    bm_helper::playlist_ids_str_spaced[playid])
+                                                    bm_helper::playlist_ids_str_spaced.at(playid))
                                                     .c_str(),
                                               &plist_enabled.at(playid))) {
                                           cvs.at(playid).setValue(plist_enabled.at(playid));

@@ -85,9 +85,6 @@
     <ClInclude Include="CVarManager.hpp">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="bm_helper.hpp">
-      <Filter>Header Files</Filter>
-    </ClInclude>
     <ClInclude Include="imgui_helper.hpp">
       <Filter>Header Files</Filter>
     </ClInclude>
@@ -132,6 +129,9 @@
     </ClInclude>
     <ClInclude Include="imgui_sugar\imgui_sugar.hpp">
       <Filter>IMGUI_SUGAR</Filter>
+    </ClInclude>
+    <ClInclude Include="bm_helper.hpp">
+      <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>
 </Project>

@@ -72,6 +72,7 @@
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="$(RootNamespace).hpp" />
+    <ClInclude Include="bm_helper.hpp" />
     <ClInclude Include="imgui\imconfig.h" />
     <ClInclude Include="imgui\imgui.h" />
     <ClInclude Include="imgui\imguivariouscontrols.h" />
@@ -89,7 +90,6 @@
     <ClInclude Include="HookedEvents.hpp" />
     <ClInclude Include="PersistentManagedCVarStorage.hpp" />
     <ClInclude Include="CVarManager.hpp" />
-    <ClInclude Include="bm_helper.hpp" />
     <ClInclude Include="imgui_helper.hpp" />
     <ClInclude Include="imgui_sugar\imgui_sugar.hpp" />
   </ItemGroup>

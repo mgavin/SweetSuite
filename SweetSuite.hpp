@@ -51,16 +51,6 @@ public:
 
 private:
       // constants
-      // Launch.log file data
-      static inline const std::filesystem::path launch_log_path = []() {
-            wchar_t home_drive[128] = {0};
-            wchar_t home_path[128]  = {0};
-            GetEnvironmentVariable(L"HOMEDRIVE", home_drive, 128);
-            GetEnvironmentVariable(L"HOMEPATH", home_path, 128);
-            return std::wstring(home_drive) + std::wstring(home_path)
-                   + L"/Documents/My Games/Rocket League/TAGame/Logs/Launch.log";
-      }();
-
       const ImColor col_white = ImColor {
             ImVec4 {1.0f, 1.0f, 1.0f, 1.0f}
       };
@@ -82,10 +72,9 @@ private:
       bool instant_exit_enabled     = false;
       bool instant_last_map_enabled = false;
 
-      bool          hooked = false;
-      std::ifstream launch_file;
+      bool hooked = false;
 
-      std::string last_map_name;
+      std::string last_map_command;
       PlaylistId  last_playlist;
 
       // saved cvars so I don't have to look them up over and over
