@@ -1,3 +1,12 @@
+/*
+ * TODO:
+ *       Maybe be able to access hooked events
+ *       Maybe return hooked events so they're accessible after initialization?
+ *
+ *
+ *
+ */
+
 #ifndef _HOOKEDEVENTS_HPP_
 #define _HOOKEDEVENTS_HPP_
 

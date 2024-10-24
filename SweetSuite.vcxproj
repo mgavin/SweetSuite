@@ -92,6 +92,7 @@
     <ClInclude Include="CVarManager.hpp" />
     <ClInclude Include="imgui_helper.hpp" />
     <ClInclude Include="imgui_sugar\imgui_sugar.hpp" />
+    <ClInclude Include="version.h" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

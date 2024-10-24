@@ -149,157 +149,113 @@ void SweetSuite::init_hooked_events() {
             },
             true);
 
+      /*
+       * The following hooks use similar mechanisms for capturing the parameter data that has the desired "console
+       * command". Unfortunately, (in my opinion), due to something not aligning correctly in bakkesmod, (might be due
+       * to a static object not being correctly accounted for, since it was suggested that these functions come from
+       * one), alignments for the parameters are slightly off depending on when they're used, usually during a game mode
+       * selection. Therefore there are different hooks with different paddings.
+       *
+       * Engine.Actor.ConsoleCommand is somewhat used separately from its counterpart, even though they perform similar
+       * functions... They may as well be the same function.
+       */
       HookedEvents::AddHookedEventWithCaller<PlayerControllerWrapper>(
             "Function Engine.PlayerController.ConsoleCommand",
             [this](PlayerControllerWrapper unused, void * params, std::string eventName) {
-                  log::log_info("CALLING!!! {}....", eventName);
-                  struct cc_params {
-                        bm_helper::details::FString command;
-                        bool                        write_to_log;
-                  } * p = reinterpret_cast<cc_params *>(params);
-
-                  // debugging this console command
-                  log::log_debug("PARAM'S LOCATION: {:X}", reinterpret_cast<uintptr_t>(params));
-
-                  if (p == nullptr) {
-                        log::log_error("p WAS NULLPTR!!!!");
-                        return;
-                  }
-
-                  unsigned char * bytes = reinterpret_cast<unsigned char *>(p);
-
-                  int         i   = 1;
-                  int         end = 20 + i;
-                  std::string outstr;
-                  for (; i <= end; ++i) {
-                        outstr += std::format("{:02X} ", bytes[i - 1]);
-                        if (i % 8 == 0) {
-                              log::log_debug("{}", outstr);
-                              outstr.clear();
-                        }
-                  }
-                  log::log_debug("{}", outstr);
-
-                  bool is_safe = (p->command.length() < 512 && p->command.length() > 0);
-                  log::log_debug(
-                        L"cmd: {{{}, size: {}}}, write_to_log: {}",
-                        is_safe ? p->command.ToWideString() : L"NOTSAFE",
-                        p->command.length(),
-                        static_cast<bool>(p->write_to_log));
-                  log::log_debug(
-                        "ARRAYDATA ADDR: {:X}, length: {}, write_to_log: {}",
-                        reinterpret_cast<uintptr_t>(p->command.c_str()),
-                        p->command.length(),
-                        static_cast<bool>(p->write_to_log));
-
-                  if (is_safe) {
-                        last_map_command = p->command.ToString();
-                        log::log_debug("last_map_command: {}", last_map_command);
-                  }
+                  struct ParamType {
+                        base_param_type data;
+                  };
+                  captureConsoleFunction<ParamType>(unused, params, eventName);
             },
             false);
 
       HookedEvents::AddHookedEventWithCaller<PlayerControllerWrapper>(
             "Function Engine.PlayerController.ConsoleCommand",
             [this](PlayerControllerWrapper unused, void * params, std::string eventName) {
-                  log::log_info("CALLING!!! {}.... POST", eventName);
-                  struct cc_params {
-                        uint8_t                     testpadding[0x08];
-                        bm_helper::details::FString command;
-                        bool                        write_to_log;
-                  } * p = reinterpret_cast<cc_params *>(params);
-
-                  // debugging this console command
-                  log::log_debug("PARAM'S LOCATION: {:X}", reinterpret_cast<uintptr_t>(params));
-
-                  if (p == nullptr) {
-                        log::log_error("p WAS NULLPTR!!!!");
-                        return;
-                  }
-
-                  unsigned char * bytes = reinterpret_cast<unsigned char *>(p);
-
-                  int         i   = 9;
-                  int         end = 20 + i;
-                  std::string outstr;
-                  for (; i <= end; ++i) {
-                        outstr += std::format("{:02X} ", bytes[i - 1]);
-                        if (i % 8 == 0) {
-                              log::log_debug("{}", outstr);
-                              outstr.clear();
-                        }
-                  }
-                  log::log_debug("{}", outstr);
-
-                  // only one missing the start before the command
-                  bool is_safe = (p->command.length() < 512 && p->command.length() > 0);
-                  log::log_debug(
-                        L"cmd: {{{}, size: {}}}, write_to_log: {}",
-                        is_safe ? p->command.ToWideString() : L"NOTSAFE",
-                        p->command.length(),
-                        static_cast<bool>(p->write_to_log));
-                  log::log_debug(
-                        "ARRAYDATA ADDR: {:X}, length: {}, write_to_log: {}",
-                        reinterpret_cast<uintptr_t>(p->command.c_str()),
-                        p->command.length(),
-                        static_cast<bool>(p->write_to_log));
-
-                  if (is_safe) {
-                        last_map_command = "start " + p->command.ToString();
-                        log::log_debug("last_map_command: {}", last_map_command);
-                  }
+                  struct ParamType {
+                        uint8_t         pad[0x08];
+                        base_param_type data;
+                  };
+                  captureConsoleFunction<ParamType>(unused, params, eventName);
             },
             true);
 
       HookedEvents::AddHookedEventWithCaller<PlayerControllerWrapper>(
             "Function Engine.Actor.ConsoleCommand",
             [this](PlayerControllerWrapper unused, void * params, std::string eventName) {
-                  log::log_info("CALLING!!! {}... POST", eventName);
-                  struct cc_params {
-                        uint8_t                     testpadding[0x18];
-                        bm_helper::details::FString command;
-                        bool                        write_to_log;
-                  } * p = reinterpret_cast<cc_params *>(params);
-
-                  if (p == nullptr) {
-                        log::log_error("p WAS NULLPTR!!!!");
-                        return;
-                  }
-
-                  unsigned char * bytes = reinterpret_cast<unsigned char *>(p);
-
-                  int         i   = 25;
-                  int         end = 20 + i;
-                  std::string outstr;
-                  for (; i <= end; ++i) {
-                        outstr += std::format("{:02X} ", bytes[i - 1]);
-                        if (i % 8 == 0) {
-                              log::log_debug("{}", outstr);
-                              outstr.clear();
-                        }
-                  }
-                  log::log_debug("{}", outstr);
-
-                  bool is_safe = (p->command.length() < 512 && p->command.length() > 0);
-                  log::log_debug(
-                        L"cmd: {{{}, size: {}}}, write_to_log: {}",
-                        is_safe ? p->command.ToWideString() : L"NOTSAFE",
-                        p->command.length(),
-                        static_cast<bool>(p->write_to_log));
-                  log::log_debug(
-                        "ARRAYDATA ADDR: {:X}, length: {}, write_to_log: {}",
-                        reinterpret_cast<uintptr_t>(p->command.c_str()),
-                        p->command.length(),
-                        static_cast<bool>(p->write_to_log));
-
-                  if (is_safe) {
-                        last_map_command = p->command.ToString();
-                        log::log_debug("last_map_command: {}", last_map_command);
-                  }
+                  struct ParamType {
+                        uint8_t         pad[0x18];
+                        base_param_type data;
+                  };
+                  captureConsoleFunction<ParamType>(unused, params, eventName);
             },
             true);
 
       hooked = true;
+}
+
+template <
+      typename ParamType,
+      typename CallerWrapper,
+      typename std::enable_if_t<std::is_base_of_v<ObjectWrapper, CallerWrapper>> *>
+inline void SweetSuite::captureConsoleFunction(CallerWrapper cw, void * params, std::string eventName) {
+      log::log_info("CALLING!!! {}...", eventName);
+
+      ParamType * p = reinterpret_cast<ParamType *>(params);
+      // debugging this console command
+      log::log_debug("PARAM'S LOCATION: {:X}", reinterpret_cast<uintptr_t>(params));
+      if (p == nullptr) {
+            log::log_error("p WAS NULLPTR!!!!");
+            return;
+      }
+
+      unsigned char * bytes = reinterpret_cast<unsigned char *>(p);
+
+      int         i   = static_cast<int>(sizeof(ParamType) - sizeof(base_param_type)) + 1;
+      int         end = 20 + i;
+      std::string outstr;
+      for (; i <= end; ++i) {
+            outstr += std::format("{:02X} ", bytes[i - 1]);
+            if (i % 8 == 0) {
+                  log::log_debug("{}", outstr);
+                  outstr.clear();
+            }
+      }
+      log::log_debug("{}", outstr);
+
+      /*
+       * I WOULD LIKE A BETTER WAY TO VERIFY THAT THIS IS "SAFE", LIKE, "IS THIS IN ROCKET LEAGUE'S ACTUAL MEMORY SPACE"
+       * ... ... I just can't guarantee that trying to read random data in certain sections will be the same on every
+       * machine :'(
+       */
+      bool is_safe = (p->data.command.length() < 512 && p->data.command.length() > 0);
+      log::log_debug(
+            L"cmd: {{{}, size: {}}}, write_to_log: {}",
+            is_safe ? p->data.command.ToWideString() : L"NOTSAFE",
+            p->data.command.length(),
+            static_cast<bool>(p->data.write_to_log));
+      log::log_debug(
+            "ARRAYDATA ADDR: {:X}, length: {}, write_to_log: {}",
+            reinterpret_cast<uintptr_t>(p->data.command.c_str()),
+            p->data.command.length(),
+            static_cast<bool>(p->data.write_to_log));
+
+      log::log_debug(
+            "DIFFERENCE BETWEEN PARAM LOCATION AND ARRAYDATA LOCATION: {:X}",
+            static_cast<ptrdiff_t>(
+                  reinterpret_cast<uintptr_t>(p->data.command.c_str()) - reinterpret_cast<uintptr_t>(params)));
+
+      if (is_safe) {
+            last_map_command     = p->data.command.ToString();
+            std::string strstart = last_map_command.substr(0, 5)
+                                   | std::views::transform([](unsigned char c) { return std::toupper(c); })
+                                   | std::ranges::to<std::string>();
+            log::log_debug("strstart: \"{}\"", strstart);
+            if (strstart != "START" && strstart != "OPEN ") {
+                  last_map_command = "start " + last_map_command;
+            }
+            log::log_debug("last_map_command: {}", last_map_command);
+      }
 }
 
 void SweetSuite::pluginEnabledChanged() {

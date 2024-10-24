@@ -115,7 +115,7 @@ template <typename... Args> inline void LOG(const FormatString & format_str, Arg
             "{}{}{}",
             g_options & LOGOPTIONS::SOURCELOC ? format_str.GetLocation() : "",
             g_options & LOGOPTIONS::SOURCELOC ? " " : "",
-            std::vformat(format_str.str, std::make_format_args(args...)));
+            sizeof...(args) ? std::vformat(format_str.str, std::make_format_args(args...)) : format_str.str);
       g_cvarmanager->log(std::move(str));
 }
 
@@ -124,7 +124,7 @@ template <typename... Args> inline void LOG(const FormatWString & wformat_str, A
             L"{}{}{}",
             g_options & LOGOPTIONS::SOURCELOC ? wformat_str.GetLocation() : L"",
             g_options & LOGOPTIONS::SOURCELOC ? L" " : L"",
-            std::vformat(wformat_str.str, std::make_wformat_args(args...)));
+            sizeof...(args) ? std::vformat(wformat_str.str, std::make_wformat_args(args...)) : wformat_str.str);
       g_cvarmanager->log(std::move(str));
 }
 

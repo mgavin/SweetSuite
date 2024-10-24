@@ -109,6 +109,11 @@ private:
       const char * debug_level     = debug_levels[4];  // INFO=0, DEBUG=1, WARNING=2, ERROR=3,
                                                        // OFF=4}LOGGER::LOG_LEVEL
 
+      struct base_param_type {
+            bm_helper::details::FString command;
+            bool                        write_to_log : 1;
+      };
+
       // helper functions
       void init_cvars();
       void init_hooked_events();
@@ -123,6 +128,12 @@ private:
       void delayedQueue();
       void delayedTraining();
       void delayedExit();
+
+      template <
+            typename ParamType,
+            typename CallerWrapper,
+            typename std::enable_if_t<std::is_base_of_v<ObjectWrapper, CallerWrapper>> * = nullptr>
+      void captureConsoleFunction(CallerWrapper cw, void * params, std::string eventName);
 
       // void hook_events();
       void unhook_events();
